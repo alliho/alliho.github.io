@@ -266,7 +266,8 @@ body.offcanvas-open .site-wrap {
   overflow: scroll;
   z-index: 100;
   width: 240px;
-  background: #283149;
+/*  background: #283149;*/
+background: #1b2d29;
   padding: 20px 30px;
 }
 
