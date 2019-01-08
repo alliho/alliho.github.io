@@ -1118,6 +1118,31 @@
 				}
 			}
 		}
+		.goto-next-primary {
+			@include vendor('transition', 'background-color #{_duration(transition)} ease-in-out');
+			background-color: _palette(accent1, bg);
+			background-image: url('images/arrow.svg');
+			background-position: center center;
+			background-repeat: no-repeat;
+			border-radius: 100%;
+			border: 0;
+			bottom: 3em;
+			display: block;
+			height: 4em;
+			left: 50%;
+			line-height: 4em;
+			margin-left: -2em;
+			overflow: hidden;
+			position: absolute;
+			text-indent: 4em;
+			white-space: nowrap;
+			width: 4em;
+
+			&:hover {
+				background-color: lighten(_palette(accent1, bg), 5);
+			}
+		}
+	}
 
 		&.disabled,
 		&:disabled {
