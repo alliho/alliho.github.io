@@ -2,3 +2,5 @@
 /version1
 /images
 /html5up-highlights
+# Ignore all .DS_store
+*.DS_Store
