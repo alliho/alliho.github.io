@@ -3,3 +3,5 @@
 /html5up-highlights
 # Ignore all .DS_store
 *.DS_Store
+# Ignore all .psd
+*.psd
