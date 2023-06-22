@@ -1,0 +1,257 @@
+
+Theme name: Graduate
+Theme data:
+button_component {
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+      button_style: "filled"
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+      button_style: "filled"
+    }
+  }
+  property_set {
+    key {
+      section_style: REGULAR
+      button_style: "filled"
+    }
+  }
+  property_set {
+    key {
+      section_style: REGULAR
+      button_style: "outlined"
+    }
+  }
+  property_set {
+    key {
+      section_style: REGULAR
+      button_style: "text"
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+      button_style: "text"
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+      button_style: "text"
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+      button_style: "outlined"
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+      button_style: "outlined"
+    }
+  }
+}
+divider_component {
+  property_set {
+    key {
+      section_style: REGULAR
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+    }
+  }
+}
+image_carousel_component {
+  property_set {
+    key {
+      section_style: REGULAR
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+    }
+  }
+}
+navigation_component {
+  property_set {
+    nav_background_color {
+      red: 0.2627451
+      green: 0.2627451
+      blue: 0.2627451
+      alpha {
+        value: 1.0
+      }
+    }
+    side_selection_style: SHADING
+    top_nav_separator: NONE
+    top_selection_style: TOP_FOREGROUND_COLOR
+    transparent_at_top: false
+  }
+}
+scheme_color_component {
+  property_set {
+    key {
+      section_style: REGULAR
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+    }
+  }
+}
+section_component {
+  property_set {
+    key {
+      section_style: REGULAR
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_1
+    }
+    background_color {
+      red: 0.9529412
+      green: 0.9529412
+      blue: 0.9529412
+      alpha {
+        value: 1.0
+      }
+    }
+  }
+  property_set {
+    key {
+      section_style: EMPHASIS_2
+    }
+    background_color {
+      alpha {
+        value: 1.0
+      }
+    }
+  }
+}
+site_component {
+  property_set {
+    primary_color {
+      red: 0.16862746
+      green: 0.2901961
+      blue: 0.10980392
+      alpha {
+        value: 1.0
+      }
+    }
+  }
+}
+text_component {
+  heading_style {
+    heading: 0
+    paragraph_style {
+      line_spacing: 1.25
+      ltr: true
+      spacing_before: 12.0
+    }
+    text_style {
+      bold: false
+      font_size: 12.0
+      foreground {
+        scheme: 0
+      }
+      weighted_font_family: "Merriweather"
+    }
+  }
+  heading_style {
+    heading: 1
+    paragraph_style {
+      ltr: true
+      spacing_before: 34.0
+    }
+    text_style {
+      bold: true
+      foreground {
+        scheme: 4
+      }
+      weighted_font_family: "Merriweather"
+    }
+  }
+  heading_style {
+    heading: 2
+    paragraph_style {
+      line_spacing: 1.25
+      ltr: true
+      spacing_before: 18.0
+    }
+    text_style {
+      bold: true
+      font_size: 24.0
+      foreground {
+        scheme: 5
+      }
+      weighted_font_family: "Merriweather"
+    }
+  }
+  heading_style {
+    heading: 3
+    paragraph_style {
+      line_spacing: 1.25
+      ltr: true
+      spacing_before: 14.0
+    }
+    text_style {
+      bold: true
+      font_size: 14.0
+      foreground {
+        scheme: 6
+      }
+      weighted_font_family: "Merriweather"
+    }
+  }
+  heading_style {
+    heading: 102
+    paragraph_style {
+      line_spacing: 1.25
+      ltr: true
+      spacing_before: 8.0
+    }
+    text_style {
+      bold: false
+      font_size: 12.0
+      foreground {
+        scheme: 2
+      }
+      weighted_font_family: "Merriweather"
+    }
+  }
+}
+name: "Graduate"
+id: "3db3b15492b8d6de_0"
+spacing_component {
+  property_set {
+    frame_selected: false
+  }
+}
+
+----------------------------------------------------
