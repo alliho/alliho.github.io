@@ -1,6 +1,5 @@
 #Ignore these folders
-/version1
-/html5up-highlights
+/oldsites
 # Ignore all .DS_store
 *.DS_Store
 # Ignore all .psd
