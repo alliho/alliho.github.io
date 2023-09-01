@@ -4,4 +4,6 @@
 *.DS_Store
 # Ignore all .psd
 *.psd
+# Ingore random other trash
 *BASE*
+index_chatGPT.html
