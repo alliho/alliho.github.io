@@ -7,3 +7,5 @@
 # Ingore random other trash
 *BASE*
 index_chatGPT.html
+*.!7
+Research*
