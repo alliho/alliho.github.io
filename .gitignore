@@ -5,6 +5,7 @@
 # Ignore all these file types
 *.psd
 *.mp4
+*.asv
 # Ingore random other trash
 *BASE*
 index_chatGPT.html

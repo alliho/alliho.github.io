@@ -10,7 +10,7 @@ addpath(genpath('/Users/alliho/Documents/SIO/gitsio/code_universal/plotfxns'))
 % https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=air_temperature&application=NOS.COOPS.TAC.MET&begin_date=20230901&end_date=20230902&station=9410230&time_zone=GMT&units=english&interval=6&format=csvhttps://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=air_temperature&application=NOS.COOPS.TAC.MET&begin_date=20230901&end_date=20230902&station=9410230&time_zone=GMT&units=english&interval=6&format=csv
 
 
-daterange = [now-10 now+2];
+daterange = [now-15 now+2];
 % daterange = [now-20 now+2];
 %%% water temp
 ndbc = dload_ndbc_fromurl('https://www.ndbc.noaa.gov/data/realtime2/46254.txt')
@@ -61,7 +61,7 @@ cdip = dload_cdipbuoy(201, daterange+[-5 0],1, 'include', {'hs', 'dp', 'tp'});
 
 
 %% PLOT
-xlims = [now-5 now+6/24];
+xlims = [now-5.5 now+6/24];
 
 figure(858); clf;
 setfigsize(gcf, [976   567]);
@@ -169,7 +169,12 @@ setAllAxesOpts(ha(end), 'XTickLabelRotation',20);
 alignyaxes(ha, xlims(1)-tmzone+1/24);
 
 
-bns = [floor(xlims(1))-1:1:xlims(2)+1];
+% bns = [floor(xlims(1))-1:1:xlims(2)+1];
+% bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
+dys = unique(floor(cdip.time-tmzone)); dys = unique([dys max(dys):1:max(dys)+2]);
+[sun_rise, sun_set] = sun_up_down(dys, cdip.lat0, cdip.lon0, 0, 0);
+
+
 dataorigins = {'tidesandcurrents.noaa.gov | 9410230','cdip.ucsd.edu | CDIP201', 'tidesandcurrents.noaa.gov | 9410230', {'cdip.ucsd.edu | CDIP201', 'tidesandcurrents.noaa.gov | 9410230'}};
 for i=1:length(ha)
     axes(ha(i)); drawLineOpts(gca, now, 'x', 'LineStyle', ':');
@@ -180,14 +185,22 @@ for i=1:length(ha)
         'BackgroundColor',[1 1 1 0.8])
     % if i==4; cleanLegend(gca, 'northeast', 'Orientation', 'Horizontal', 'FontSize',8); end
     
-    % for i=1:2:length(bns)-1
-    for i=length(bns)-2:-2:1
-        bn = bns(i:i+1);
-        bn = bn + [-1 1].*0.5/24;
+    % for bi=1:2:length(bns)-1
+    % for bi=length(bns)-2:-2:1
+    %     bn = bns(bi:bi+1);
+    %     bn = bn + [-1 1].*0.5/24;
+    %     tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
+    %     uistack(tmp, 'bottom')
+    % end
+
+    for bi=1:length(sun_rise)-1
+        disp(bi)
+        bn = [sun_set(bi) sun_rise(bi+1)] - tmzone;
         tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
         uistack(tmp, 'bottom')
     end
 end
+
 
 % -------------------------------------------------------------------------
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
