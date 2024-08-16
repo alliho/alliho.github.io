@@ -6,10 +6,14 @@
 *.psd
 *.mp4
 *.asv
+*.*.html
 # Ingore random other trash
 *BASE*
 index_chatGPT.html
 *.!7
 Research*
 howsthewater 2.html
-*.*.html
+howsthewater.jpg
+howsthewaves.jpg
+howstherays.jpg
+
