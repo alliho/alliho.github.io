@@ -2,10 +2,13 @@
 /oldsites
 # Ignore all .DS_store
 *.DS_Store
-# Ignore all .psd
+# Ignore all these file types
 *.psd
+*.mp4
 # Ingore random other trash
 *BASE*
 index_chatGPT.html
 *.!7
 Research*
+howsthewater 2.html
+*.*.html
