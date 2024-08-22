@@ -841,7 +841,7 @@ if rayopt
     bnds_top = [linspace(bnd_xs(1), bnd_xs(2), round(Nwaves*0.3)); linspace(bnd_ys(2), bnd_ys(2), round(Nwaves.*0.3))];
     if dp0<20 | dp0>360-20
         bnds = [bnds_top]; 
-    elseif dp0>270-90 & dp0<270+20
+    elseif (dp0>270-90 & dp0<270+20) | dp0<=180
         bnds = [bnds_left]; 
     else
         bnds = [bnds_left bnds_top];
