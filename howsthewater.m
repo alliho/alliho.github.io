@@ -10,11 +10,11 @@ fpath = strsplit(fpath, '/');
 upath = ['/' fpath{2} '/' fpath{3} '/'];
 if contains(upath, 'j')
     ljpath = 'Documents/misc/lajolla_info/';
-    wpath = 'Documents/myrepos/gitwebsite/';
+    wpath = 'Documents/myrepos/gitwebsite/howsthewater/';
     % addpath(genpath(''))
 else
     ljpath = 'Documents/SIO/misc_projects/';
-    wpath = 'Documents/gitwebsite/';
+    wpath = 'Documents/gitwebsite/howsthewater/';
     addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/dload_cdip_v3']))
     addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/fxnout']))
     addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/plotfxns']))
@@ -459,7 +459,7 @@ for i=1:length(ha)
     end
 end
 
-savejpg(gcf, 'howsthespectrogram', [upath wpath], 'on');
+savejpg(gcf, 'howsthespectrograms', [upath wpath], 'on');
 
 
 %% directional plot

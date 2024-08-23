@@ -1,5 +1,6 @@
 #Ignore these folders
 /oldsites
+/oldbases
 # Ignore all .DS_store
 *.DS_Store
 # Ignore all these file types
@@ -8,7 +9,6 @@
 *.asv
 *.*.html
 # Ingore random other trash
-*BASE*
 index_chatGPT.html
 *.!7
 Research*
