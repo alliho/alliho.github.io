@@ -2,10 +2,30 @@
 tmzone = 8/24;
 tmzone = 7/24;
 
+%% fpath
+% which computer
+
+fpath = pwd;
+fpath = strsplit(fpath, '/');
+upath = ['/' fpath{2} '/' fpath{3} '/'];
+if contains(upath, 'j')
+    ljpath = 'Documents/misc/lajolla_info/';
+    wpath = 'Documents/myrepos/gitwebsite/';
+    % addpath(genpath(''))
+else
+    ljpath = 'Documents/SIO/misc_projects/';
+    wpath = 'Documents/gitwebsite/';
+    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/dload_cdip_v3']))
+    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/fxnout']))
+    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/plotfxns']))
+    addpath([upath 'Documents/SIO/misc_projects/john/code/tracingwaves/'])
+end
+
+
+
+
 %% SORT URLS
-addpath(genpath('/Users/alliho/Documents/SIO/gitsio/code_universal/dload_cdip_v3'))
-addpath(genpath('/Users/alliho/Documents/SIO/gitsio/code_universal/fxnout'))
-addpath(genpath('/Users/alliho/Documents/SIO/gitsio/code_universal/plotfxns'))
+
 
 % https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=air_temperature&application=NOS.COOPS.TAC.MET&begin_date=20230901&end_date=20230902&station=9410230&time_zone=GMT&units=english&interval=6&format=csvhttps://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=air_temperature&application=NOS.COOPS.TAC.MET&begin_date=20230901&end_date=20230902&station=9410230&time_zone=GMT&units=english&interval=6&format=csv
 
@@ -64,9 +84,10 @@ cdip = dload_cdipbuoy(201, daterange+[-5 0],1, 'include', {'hs', 'dp', 'tp'});
 xlims = [now-5 now+6/24];
 
 figure(858); clf;
-setfigsize(gcf, [976   567]);
+setfigsize(gcf, [1080   567]);
 % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
-ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.08 0.08]);
+% ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.08 0.08]);
+ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.12 0.12]);
 % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
 
 
@@ -76,7 +97,7 @@ setAllAxesOpts(ha, 'FontName', 'avenir');
 setAllAxesOpts(ha, 'FontSize', 12);
 setAllAxesOpts(ha, 'Box', 'on');
 setAllAxesOpts(ha, 'XLim', xlims);
-dt = 6/24;
+dx = 6/24;
 
 ttlstr = ['Updated ' datestr(max([ndbc.time; noaa.time; cdip.time'])-tmzone, 'yyyy/mm/dd HH:MM') ' PST'];
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -84,7 +105,7 @@ thisha = ha(1); axes(thisha); hold on;
 t = noaa.time-tmzone; var = noaa.wsp./1.944;
 col = [237, 167, 81]./256;
 
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dt)
+autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx)
 tt = find(isin(t, xlims));
 ylims = [0 max(var(tt))+1.5]; ylim(ylims);
 ylabel('wind speed [m/s]')
@@ -109,7 +130,7 @@ col = [100, 100, 100]./258;
 yyaxis left; set(gca, 'YColor', col)
 t = cdip.time-tmzone; var = cdip.hs.*3.28084;
 
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dt);
+autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 tt = find(isin(t, xlims));
 ylims = [0 max(var(tt)) + 0.2]; ylim(ylims)
 ylabel('Hs [ft]')
@@ -136,7 +157,7 @@ plot(t, var, 'g-', 'Color', col, 'LineWidth',3)
 plot(t(end), var(end), 'o', 'Color', col*0.7, 'LineWidth',2)
 text(t(end)+0.5/24, var(end), num2str(round(var(end),1)), 'Color', col*0.7, ...
     'HorizontalAlignment','left', 'VerticalAlignment','top')
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dt);
+autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 tt = find(isin(t, xlims));
 ylims = minmax(var(tt)) +[-1 1].*0.33; ylim(ylims)
 ylabel('MLLW [ft]')
@@ -150,7 +171,7 @@ plot(t, var, 'b.-', 'Color', col, 'LineWidth',2.5, 'Markersize',13, 'DisplayName
 plot(t(end), var(end), 'o', 'Color', col*0.7, 'LineWidth',2)
 text(t(end)+0.5/24, var(end), num2str(round(var(end),1)), 'Color', col*0.7, ...
     'HorizontalAlignment','left', 'VerticalAlignment','top')
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dt);
+autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 tt = find(isin(t, xlims));
 ylims = minmax(var(tt))+[-1 1]*1; ylim(ylims)
 % ylims = minmax(var(tt))+[-4 1]*0.5; ylim(ylims)
@@ -166,7 +187,8 @@ plot(t, var, 'b-', 'Color', [col+0.15 0.6], 'LineWidth',2, 'Markersize',10, 'Dis
 quietaxes(ha(1:end-1), 'x');
 setAllAxesOpts(ha(end), 'XLabel','PST');
 setAllAxesOpts(ha(end), 'XTickLabelRotation',20);
-alignyaxes(ha, xlims(1)-tmzone+1/24);
+% alignyaxes(ha, xlims(1)-tmzone+1/24);
+alignyaxes(ha, xlims(1)-tmzone);
 
 
 % bns = [floor(xlims(1))-1:1:xlims(2)+1];
@@ -215,7 +237,7 @@ text(t(end)+0.5/24, var(end), num2str(round(var(end),1)), 'Color', col*0.9, ...
     'HorizontalAlignment','left', 'VerticalAlignment','top')
 ylim([0 20])
 % -------------------------------------------------------------------------
-savejpg(gcf, 'howsthewater', '/Users/alliho/Documents/gitwebsite/', 'on');
+savejpg(gcf, 'howsthewater', [upath wpath], 'on');
 
 
 %% directional plot [add data]
@@ -229,94 +251,97 @@ cdip_outer.id = 100;
 
 %% spectrogram over past three days
 
-xlims = [now-5 now+6/24];
-
-
-
-
-figure(93); clf;
-% setfigsize(gcf, [393   297]);
-setfigsize(gcf, [976         422])
-% tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
-ha = tight_subplot(2, 1, [0.01 0.05], [0.145 0.05], [0.08 0.08]);
-% [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
-% -------------------------------------------------------------------------
-setaxes(ha, 'FontName', 'avenir')
-setaxes(ha, 'CLim',[-4 0.5])
-colormap(jet);
-
-setaxes(ha, 'Layer', 'top');
-setaxes(ha, 'FontSize', 12);
-setaxes(ha, 'Box', 'on');
-setaxes(ha, 'XLim', xlims);
-setaxes(ha, 'YLim', [0.04 0.55]);
-setaxes(ha, 'YMinorGrid', 'off');
-setaxes(ha, 'YLabel', 'f [Hz]');
-setaxes(ha, 'YTick', [0.05 0.1 0.2 0.5]);
-setloglog(ha, 'y'); 
-dx = 12/24;
-ttlstr = ['Updated ' datestr(max([ndbc.time; noaa.time; cdip.time'])-tmzone, 'yyyy/mm/dd HH:MM') ' PST'];
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-thisha = ha(2); axes(thisha); hold on; 
-cdip = cdip_inner;
-x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
-pcolor(x,y,Z); shading flat;
-[X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
-% contourf(X,Y,Z', [-4:0.25:2])
-contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-thisha = ha(1); axes(thisha); hold on; 
-cdip = cdip_outer;
-x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
-pcolor(x,y,Z); shading flat;
-[X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
-% contourf(X,Y,Z', [-4:0.25:2])
-contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
-autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
-
-
-% -------------------------------------------------------------------------
-quietaxes(ha(1:end-1), 'x');
-setaxes(ha(end), 'XLabel','PST');
-setaxes(ha(end), 'XTickLabelRotation',20);
-alignyaxes(ha, xlims(1)-tmzone -1/24);
-
-bns = [floor(xlims(1))-1:1:xlims(2)+1];
-bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
-
-dataorigins = {['cdip.ucsd.edu | CDIP'  num2str(cdip_inner.id)], ['cdip.ucsd.edu | CDIP' num2str(cdip_inner.id)]};
-for i=1:length(ha)
-    axes(ha(i)); drawLineOpts(gca, now, 'x', 'LineStyle', ':');
-    ylims = get(gca, 'YLim');
-    xlims = get(gca, 'XLim');
-    text(xlims(1)+1/24, ylims(1) + 0.005, dataorigins{i}, ...
-        'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'FontName', 'Avenir', ...
-        'BackgroundColor',[1 1 1 0.8])
-end
+% xlims = [now-5 now+6/24];
+% 
+% 
+% 
+% 
+% figure(93); clf;
+% % setfigsize(gcf, [393   297]);
+% setfigsize(gcf, [976         422])
+% % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
+% ha = tight_subplot(2, 1, [0.01 0.05], [0.145 0.05], [0.08 0.08]);
+% % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
+% % -------------------------------------------------------------------------
+% setaxes(ha, 'FontName', 'avenir')
+% setaxes(ha, 'CLim',[-4 0.9])
+% colormap(jet);
+% 
+% setaxes(ha, 'Layer', 'top');
+% setaxes(ha, 'FontSize', 12);
+% setaxes(ha, 'Box', 'on');
+% setaxes(ha, 'XLim', xlims);
+% setaxes(ha, 'YLim', [0.04 0.55]);
+% setaxes(ha, 'YMinorGrid', 'off');
+% setaxes(ha, 'YLabel', 'f [Hz]');
+% setaxes(ha, 'YTick', [0.05 0.1 0.2 0.5]);
+% setloglog(ha, 'y'); 
+% dx = 12/24;
+% ttlstr = ['Updated ' datestr(max([ndbc.time; noaa.time; cdip.time'])-tmzone, 'yyyy/mm/dd HH:MM') ' PST'];
+% 
+% 
+% % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% thisha = ha(2); axes(thisha); hold on; 
+% cdip = cdip_inner;
+% x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
+% pcolor(x,y,Z); shading flat;
+% [X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
+% % contourf(X,Y,Z', [-4:0.25:2])
+% contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
+% autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
+% 
+% % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% thisha = ha(1); axes(thisha); hold on; 
+% cdip = cdip_outer;
+% x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
+% pcolor(x,y,Z); shading flat;
+% [X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
+% % contourf(X,Y,Z', [-4:0.25:2])
+% contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
+% autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
+% 
+% 
+% % -------------------------------------------------------------------------
+% quietaxes(ha(1:end-1), 'x');
+% setaxes(ha(end), 'XLabel','PST');
+% setaxes(ha(end), 'XTickLabelRotation',20);
+% alignyaxes(ha, xlims(1)-tmzone -1/24);
+% 
+% bns = [floor(xlims(1))-1:1:xlims(2)+1];
+% bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
+% 
+% dataorigins = {['cdip.ucsd.edu | CDIP'  num2str(cdip_inner.id)], ['cdip.ucsd.edu | CDIP' num2str(cdip_inner.id)]};
+% for i=1:length(ha)
+%     axes(ha(i)); drawLineOpts(gca, now, 'x', 'LineStyle', ':');
+%     ylims = get(gca, 'YLim');
+%     xlims = get(gca, 'XLim');
+%     text(xlims(1)+1/24, ylims(1) + 0.005, dataorigins{i}, ...
+%         'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'FontName', 'Avenir', ...
+%         'BackgroundColor',[1 1 1 0.8])
+% end
 
 %% spectrogram over past three days and partition hs
 
 xlims = [now-5 now+6/24];
 
-
+ytx = [20 10 5 2]; ylb = strsplit(num2str(ytx), ' '); ylb = cellfun(@(x) [x 's'], ylb, 'Un', 0);
 
 
 figure(94); clf;
 % setfigsize(gcf, [393   297]);
 setfigsize(gcf, [976         522])
+setfigsize(gcf, [1080   567]);
 % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
-oldha = tight_subplot(6, 1, [0.01 0.05], [0.125 0.025], [0.08 0.08]);
+% oldha = tight_subplot(6, 1, [0.01 0.05], [0.125 0.015], [0.08 0.08]);
+% oldha = tight_subplot(6, 1, [0.01 0.05], [0.125 0.015], [0.12 0.12]);
+oldha = tight_subplot(6, 1, [0.01 0.05], [0.14 0.05], [0.12 0.12]);
 [ha] = reorg_tightsubplot(oldha, {1,2,[3:4],[5:6]});
 % -------------------------------------------------------------------------
 setaxes(ha, 'FontName', 'avenir')
 setaxes(ha, 'Layer', 'top');
 setaxes(ha, 'FontSize', 12);
 setaxes(ha, 'Box', 'on');
-setaxes(ha, 'CLim',[-4 0.5])
+setaxes(ha, 'CLim',[-4 0.8])
 colormap(jet);
 setaxes(ha, 'XLim', xlims);
 setaxes(ha(3:4), 'YLim', [0.04 0.55]);
@@ -324,14 +349,17 @@ setaxes(ha(3:4), 'YMinorGrid', 'off');
 setaxes(ha(3:4), 'YLabel', 'f [Hz]');
 setaxes(ha(3:4), 'YTick', [0.05 0.1 0.2 0.5]);
 setloglog(ha(3:4), 'y'); 
-dx = 12/24;
-ttlstr = ['Updated ' datestr(max([ndbc.time; noaa.time; cdip.time'])-tmzone, 'yyyy/mm/dd HH:MM') ' PST'];
+dx = 6/24;
+ttlstr = ['Updated ' datestr(max([cdip_outer.time cdip_inner.time])-tmzone, 'yyyy/mm/dd HH:MM') ' PST'];
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+fsplit = 0.1;
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 thisha = ha(1); axes(thisha); hold on; 
+title(gca, ttlstr, 'HorizontalAlignment', 'right')
 
-flims = [0.1 0.5];
+flims = [fsplit 0.5];
 col = [1 1 1].*0.3;
 cdip = cdip_inner; t = cdip.time - tmzone; ff = find(isin(cdip.f, flims)); var = trapz(cdip.f(ff), cdip.sf(ff,:)); var = 4.*sqrt(var); var = var.*3.28084;
 plot(t, var, 'k-', 'Color', col, 'LineWidth',2, 'DisplayName', ['CDIP' num2str(cdip.id)])
@@ -345,17 +373,23 @@ tt = find(isin(cdip_outer.time, xlims));
 ylims = [0 max(cdip_outer.hs(tt)).*3.28084 + 0.2]; ylim(ylims)
 ylabel('Hs_{seas} [ft]')
 autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
+
+title(ttlstr, 'HorizontalAlignment', 'right')
+pos = gca().Title.Position; 
+pos(1) = xlims(2);
+set(gca().Title, 'Position', pos);
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 thisha = ha(2); axes(thisha); hold on; 
 
 
-flims = [0.05 0.1];
+flims = [0.05 fsplit];
 col = [1 1 1].*0.3;
-cdip = cdip_inner; t = cdip.time - tmzone; ff = find(isin(cdip.f, flims)); var = trapz(cdip.f(ff), cdip.sf(ff,:)); var = 4.*sqrt(var); var = var.*3.28084;
+cdip = cdip_inner; t = cdip.time - tmzone; ff = find(isin(cdip.f, flims, 'inclusive')); var = trapz(cdip.f(ff), cdip.sf(ff,:)); var = 4.*sqrt(var); var = var.*3.28084;
 plot(t, var, 'k-', 'Color', col, 'LineWidth',2, 'DisplayName', ['CDIP' num2str(cdip.id)])
 
 col = [1 1  1].*0.6;
-cdip = cdip_outer; t = cdip.time - tmzone; ff = find(isin(cdip.f, flims));  var = trapz(cdip.f(ff), cdip.sf(ff,:)); var = 4.*sqrt(var); var = var.*3.28084;
+cdip = cdip_outer; t = cdip.time - tmzone; ff = find(isin(cdip.f, flims, 'inclusive'));  var = trapz(cdip.f(ff), cdip.sf(ff,:)); var = 4.*sqrt(var); var = var.*3.28084;
 plot(t, var, 'k-', 'Color', col, 'LineWidth',2, 'DisplayName', ['CDIP' num2str(cdip.id)])
 
 tt = find(isin(cdip_outer.time, xlims));
@@ -366,22 +400,35 @@ autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 thisha = ha(4); axes(thisha); hold on; 
+yyaxis right; set(gca, 'YColor', 'k')
+ylim([0.04 0.55]); setloglog(gca, 'y');
+yticks(1./ytx);
+set(gca, 'YTickLabel', ylb)
+
+yyaxis left; set(gca, 'YColor', 'k')
 cdip = cdip_inner;
 x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
 pcolor(x,y,Z); shading flat;
-[X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
+[X Y] = ndgrid(x,y); Z = movmean(Z,(2./24)./dt,2); Z = movmean(Z,3,1); 
 % contourf(X,Y,Z', [-4:0.25:2])
-contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
+contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.25)
 autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
+
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 thisha = ha(3); axes(thisha); hold on; 
+yyaxis right; set(gca, 'YColor', 'k')
+ylim([0.04 0.55]); setloglog(gca, 'y');
+yticks(1./ytx);
+set(gca, 'YTickLabel', ylb)
+
+yyaxis left; set(gca, 'YColor', 'k')
 cdip = cdip_outer;
 x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
 pcolor(x,y,Z); shading flat;
-[X Y] = ndgrid(x,y); Z = movmean(Z,3,1); Z = movmean(Z,(2./24)./dt,2);
+[X Y] = ndgrid(x,y); Z = movmean(Z,(2./24)./dt,2); Z = movmean(Z,3,1); 
 % contourf(X,Y,Z', [-4:0.25:2])
-contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.5)
+contour(X,Y,Z', [-4:0.2:3], 'EdgeColor', 'k', 'EdgeAlpha', 0.25)
 autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 
 
@@ -389,7 +436,7 @@ autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
 quietaxes(ha(1:end-1), 'x');
 setaxes(ha(end), 'XLabel','PST');
 setaxes(ha(end), 'XTickLabelRotation',20);
-alignyaxes(ha, xlims(1)-tmzone -1/24);
+alignyaxes(ha, xlims(1)-tmzone);
 
 bns = [floor(xlims(1))-1:1:xlims(2)+1];
 bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
@@ -408,10 +455,11 @@ for i=1:length(ha)
         leg.Box = 0;
         leg.ItemTokenSize = leg.ItemTokenSize/2;
         leg.Position(1) = leg.Position(1) - 0.005;
-        leg.Position(2) = leg.Position(2) + 0.005;
+        leg.Position(2) = leg.Position(2) - 0.0085;
     end
 end
 
+savejpg(gcf, 'howsthespectrogram', [upath wpath], 'on');
 
 
 %% directional plot
@@ -601,7 +649,7 @@ text(fxp+0.02, fyp+0.02, {['' num2str(round(cdip.tp(i),1)) 's']}, 'Color', col*0
     'HorizontalAlignment','left', 'VerticalAlignment','bottom', 'FontName', 'avenir', 'FontSize',8)
 
 
-savejpg(gcf, 'howsthewaves', '/Users/alliho/Documents/gitwebsite/', 'on')
+savejpg(gcf, 'howsthewaves', [upath wpath], 'on')
 
 
 %% add currents
@@ -771,7 +819,6 @@ savejpg(gcf, 'howsthewaves', '/Users/alliho/Documents/gitwebsite/', 'on')
 %% ray tracing based on peak 
 rayopt = 1;
 
-addpath('/Users/alliho/Documents/SIO/misc_projects/john/code/tracingwaves/')
 g = 9.81; 
 
 
@@ -829,10 +876,10 @@ if (dp0>180 & dp0<0); rayopt = 0; end
 %%
 if rayopt
     
-    load('/Users/alliho/Documents/SIO/misc_projects/lajolla_grids.mat');
-    tmp = load('/Users/alliho/Documents/SIO/misc_projects/lajolla_interpgrids.mat');
+    load([upath ljpath 'lajolla_grids.mat']);               %load('/Users/alliho/Documents/SIO/misc_projects/lajolla_grids.mat');
+    tmp = load([upath ljpath 'lajolla_interpgrids.mat']);   %load('/Users/alliho/Documents/SIO/misc_projects/lajolla_interpgrids.mat');
     flds = cellfun(@(nm) tmp.(nm), {'interpU' 'interpdUdx' 'interpdUdy' 'interpdUdt' 'interpV' 'interpdVdx' 'interpdVdy' 'interpdVdt' 'interpZ' 'interpdZdx' 'interpdZdy' 'interpdZdt'}, 'Un', 0); clear tmp;
-    load('/Users/alliho/Documents/SIO/misc_projects/lajolla_roads.mat');
+    load([upath ljpath 'lajolla_roads.mat']);               %load('/Users/alliho/Documents/SIO/misc_projects/lajolla_roads.mat');
     % %%
     Nwaves = 150; 
     bnd_ys = [minmax(y0) + [1 -1].*range(y0)/25];
@@ -964,7 +1011,7 @@ if rayopt
 
     cleanLegend(gca, 'northeast', 'FontName', 'avenir', 'Color', [1 1 1 0.5], 'EdgeColor', 'none', 'FontSize',8)
 
-    savejpg(gcf, 'howstherays', '/Users/alliho/Documents/gitwebsite/', 'on')
+    savejpg(gcf, 'howstherays', [upath wpath], 'on')
     
 end
 
