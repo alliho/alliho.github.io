@@ -15,7 +15,9 @@ if contains(upath, 'j')
 else
     ljpath = 'Documents/SIO/misc_projects/';
     wpath = 'Documents/gitwebsite/howsthewater/';
-    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/dload_cdip_v3']))
+    % addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/dload_cdip_v3']))
+    addpath(genpath([upath 'Documents/SIO/gitsio/dload_cdip']))
+    addpath(genpath([upath 'Documents/SIO/gitsio/dload_ndbc']))
     addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/fxnout']))
     addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/plotfxns']))
     addpath([upath 'Documents/SIO/misc_projects/john/code/tracingwaves/'])
@@ -216,7 +218,7 @@ for i=1:length(ha)
     % end
 
     for bi=1:length(sun_rise)-1
-        disp(bi)
+        disp(bi);
         bn = [sun_set(bi) sun_rise(bi+1)] - tmzone;
         tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
         uistack(tmp, 'bottom')
@@ -322,7 +324,9 @@ cdip_outer.id = 100;
 
 %% spectrogram over past three days and partition hs
 
+% xlims = [now-5 now+6/24];
 xlims = [now-5 now+6/24];
+
 
 ytx = [20 10 5 2]; ylb = strsplit(num2str(ytx), ' '); ylb = cellfun(@(x) [x 's'], ylb, 'Un', 0);
 
@@ -441,7 +445,11 @@ alignyaxes(ha, xlims(1)-tmzone);
 bns = [floor(xlims(1))-1:1:xlims(2)+1];
 bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
 
-dataorigins = {'', '',['cdip.ucsd.edu | CDIP'  num2str(cdip_inner.id)], ['cdip.ucsd.edu | CDIP' num2str(cdip_inner.id)]};
+dys = unique(floor(cdip.time-tmzone)); dys = unique([dys max(dys):1:max(dys)+2]);
+[sun_rise, sun_set] = sun_up_down(dys, cdip.lat0, cdip.lon0, 0, 0);
+
+
+dataorigins = {'', '',['cdip.ucsd.edu | CDIP'  num2str(cdip_outer.id)], ['cdip.ucsd.edu | CDIP' num2str(cdip_inner.id)]};
 for i=1:length(ha)
     axes(ha(i)); drawLineOpts(gca, now, 'x', 'LineStyle', ':');
     ylims = get(gca, 'YLim');
@@ -450,6 +458,14 @@ for i=1:length(ha)
         'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'FontName', 'Avenir', ...
         'BackgroundColor',[1 1 1 0.8])
 
+    
+    for bi=1:length(sun_rise)-1
+        disp(bi);
+        bn = [sun_set(bi) sun_rise(bi+1)] - tmzone;
+        tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
+        uistack(tmp, 'bottom')
+    end
+
     if i==1 
         leg = cleanLegend(gca, 'southwest', 'NumColumns',2, 'FontSize',10); 
         leg.Box = 0;
@@ -457,6 +473,7 @@ for i=1:length(ha)
         leg.Position(1) = leg.Position(1) - 0.005;
         leg.Position(2) = leg.Position(2) - 0.0085;
     end
+
 end
 
 savejpg(gcf, 'howsthespectrograms', [upath wpath], 'on');
@@ -641,6 +658,7 @@ text(x0 + x0*0.2,y0 + y0*0.1, [num2str(round(spd0,1))  ' m/s'],...
     'FontName', 'avenir', 'Color', col, 'BackgroundColor', [1 1 1 0.9], 'Margin', 0.2, 'HorizontalAlignment','center', 'VerticalAlignment','middle')
 
 col = [1 1 1]*0.2;
+[~, i] = min(abs(cdip.time- (now + tmzone)));
 fp = 1./cdip.tp(i); dp = cdip.dp(i); dp = (oc2pol(dp));
 fp = log10(fp)-f0;
 fxp = cosd(dp).*fp; fyp = sind(dp).*fp;
