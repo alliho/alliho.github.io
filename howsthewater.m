@@ -637,7 +637,7 @@ colormap(jet);
 c.Position(1) = c.Position(1) + 0.04;
 c.Position(4) = c.Position(4)*0.3;
 c.Position(2) = c.Position(2)+0.055;
-ylabel(c, '{\it log_{10}[S(f)] }', 'FontName', 'avenir')
+ylabel(c, '$\it log_{10}$[S(f)] ', 'FontName', 'avenir')
 
 
 col = [237, 167, 81]./256;
