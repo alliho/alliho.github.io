@@ -85,7 +85,7 @@ cdip = dload_cdipbuoy(201, daterange+[-5 0],1, 'include', {'hs', 'dp', 'tp'});
 xlims = [now-5 now+6/24];
 
 figure(858); clf;
-setfigsize(gcf, [1080   567]);
+setfigsize(gcf, [1080   567].*1.2);
 % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
 % ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.08 0.08]);
 ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.12 0.12]);
@@ -94,8 +94,7 @@ ha = tight_subplot(4, 1, [0.01 0.05], [0.14 0.05], [0.12 0.12]);
 
 % -------------------------------------------------------------------------
 % format_fig4print(ha)
-setAllAxesOpts(ha, 'FontName', 'avenir');
-setAllAxesOpts(ha, 'FontSize', 12);
+setAllAxesOpts(ha, 'FontName', 'avenir', 'FontSize', 10);
 setAllAxesOpts(ha, 'Box', 'on');
 setAllAxesOpts(ha, 'XLim', xlims);
 dx = 6/24;
@@ -332,17 +331,16 @@ ytx = [20 10 5 2]; ylb = strsplit(num2str(ytx), ' '); ylb = cellfun(@(x) [x 's']
 
 figure(94); clf;
 % setfigsize(gcf, [393   297]);
-setfigsize(gcf, [976         522])
-setfigsize(gcf, [1080   567]);
+setfigsize(gcf, [976         522].*1.2)
+setfigsize(gcf, [1080   567].*1.2);
 % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
 % oldha = tight_subplot(6, 1, [0.01 0.05], [0.125 0.015], [0.08 0.08]);
 % oldha = tight_subplot(6, 1, [0.01 0.05], [0.125 0.015], [0.12 0.12]);
 oldha = tight_subplot(6, 1, [0.01 0.05], [0.14 0.05], [0.12 0.12]);
 [ha] = reorg_tightsubplot(oldha, {1,2,[3:4],[5:6]});
 % -------------------------------------------------------------------------
-setaxes(ha, 'FontName', 'avenir')
+setaxes(ha, 'FontName', 'avenir', 'Fontsize',10)
 setaxes(ha, 'Layer', 'top');
-setaxes(ha, 'FontSize', 12);
 setaxes(ha, 'Box', 'on');
 setaxes(ha, 'CLim',[-4 0.8])
 colormap(jet);
@@ -466,7 +464,7 @@ for i=1:length(ha)
     end
 
     if i==1 
-        leg = cleanLegend(gca, 'southwest', 'NumColumns',2, 'FontSize',10); 
+        leg = cleanLegend(gca, 'southwest', 'NumColumns',2, 'FontSize',10, 'FontName', 'avenir'); 
         leg.Box = 0;
         leg.ItemTokenSize = leg.ItemTokenSize/2;
         leg.Position(1) = leg.Position(1) - 0.005;
@@ -508,7 +506,7 @@ mem_out_outer = mem_out;
 
 figure(92); clf; 
 % setfigsize(gcf, [393   297]);
-setfigsize(gcf, [872   378])
+setfigsize(gcf, [872   378].*1.2)
 % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
 ha = tight_subplot(1, 2, [0.05 0.1], [0.01 0.12], [0.2 0.2]);
 % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
@@ -683,8 +681,8 @@ savejpg(gcf, 'howsthewaves', [upath wpath], 'on')
 % 
 % % -------------------------------------------------------------------------
 % % format_fig4print(ha)
-% setAllAxesOpts(ha, 'FontName', 'avenir');
-% setAllAxesOpts(ha, 'FontSize', 12);
+% setAllAxesOpts(ha, 'FontName', 'avenir', 'FontSize', 10);;
+% 
 % setAllAxesOpts(ha, 'Box', 'on');
 % setAllAxesOpts(ha, 'XLim', xlims);
 % dt = 6/24;
@@ -953,7 +951,7 @@ if rayopt
     % -------------------------------------------------------------------------
     % -------------------------------------------------------------------------
     figure(855); clf;  
-    setfigsize(gcf, [564   602])
+    setfigsize(gcf, [564   602].*1.2)
     % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
     ha = tight_subplot(1, 1, [0.05 0.05], [0.09 0.01], [0.12 0.12]);
     % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
@@ -1094,7 +1092,7 @@ end
 % 
 % % -------------------------------------------------------------------------
 % % format_fig4print(ha)
-% setAllAxesOpts(ha, 'FontName', 'avenir')
+% setAllAxesOpts(ha, 'FontName', 'avenir', 'FontSize', 10);
 % setAllAxesOpts(ha, 'FontSize', 12)
 % setAllAxesOpts(ha, 'Box', 'on')
 % setAllAxesOpts(ha, 'XLim', xlims)
@@ -1246,5 +1244,11 @@ end
 % end
 % 
 % savejpg(gcf, 'howsthewater', '/Users/alliho/Documents/gitwebsite/', 'on')
+
+
+%% 
+disp('------------------------------------')
+disp('Successfully executed howsthewater.m')
+disp('------------------------------------')
 
 
