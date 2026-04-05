@@ -8,21 +8,20 @@ tmzone = 7/24;
 fpath = pwd;
 fpath = strsplit(fpath, '/');
 upath = ['/' fpath{2} '/' fpath{3} '/'];
-if contains(upath, 'j')
+if contains(upath, 'j') % JPL
     ljpath = 'Documents/misc/lajolla_info/';
     wpath = 'Documents/myrepos/gitwebsite/howsthewater/';
-    % addpath(genpath(''))
 else
-    ljpath = 'Documents/SIO/misc_projects/';
-    wpath = 'Documents/gitwebsite/howsthewater/';
-    % addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/dload_cdip_v3']))
-    addpath(genpath([upath 'Documents/SIO/gitsio/dload_cdip']))
-    addpath(genpath([upath 'Documents/SIO/gitsio/dload_ndbc']))
-    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/fxnout']))
-    addpath(genpath([upath 'Documents/SIO/gitsio/code_universal/plotfxns']))
-    addpath([upath 'Documents/SIO/misc_projects/john/code/tracingwaves/'])
+    if exist([upath 'Documents/myrepos/']) % NEW computer
+        ljpath = 'Documents/misc/lajolla_info/';
+        wpath = 'Documents/myrepos/gitwebsite/howsthewater/';
+        addpath([upath 'Documents/myrepos/tracingwaves/'])
+    else % OLD UCSD computer
+        ljpath = 'Documents/SIO/misc_projects/';
+        wpath = 'Documents/gitwebsite/howsthewater/';
+        addpath([upath 'Documents/SIO/misc_projects/john/code/tracingwaves/'])
+    end
 end
-
 
 
 
@@ -154,7 +153,7 @@ thisha = ha(3); axes(thisha); hold on;
 
 col = [154, 163, 67]./258;
 % yyaxis left; set(gca, 'YColor', col)
-t = noaa.time-tmzone; var = noaa.waterlevel;
+t = noaa.time-tmzone; var = noaa.waterlevel; var(var==1) = NaN;
 plot(t, var, 'g-', 'Color', col, 'LineWidth',3)
 plot(t(end), var(end), 'o', 'Color', col*0.7, 'LineWidth',2)
 text(t(end)+0.5/24, var(end), num2str(round(var(end),1)), 'Color', col*0.7, ...
