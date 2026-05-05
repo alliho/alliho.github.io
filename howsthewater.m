@@ -3,27 +3,9 @@ tmzone = 8/24;
 tmzone = 7/24;
 
 %% fpath
-% which computer
 
-fpath = pwd;
-fpath = strsplit(fpath, '/');
-upath = ['/' fpath{2} '/' fpath{3} '/'];
-if contains(upath, 'j') % JPL
-    ljpath = 'Documents/misc/lajolla_info/';
-    wpath = 'Documents/myrepos/gitwebsite/howsthewater/';
-else
-    if exist([upath 'Documents/myrepos/']) % NEW computer
-        ljpath = 'Documents/misc/lajolla_info/';
-        wpath = 'Documents/myrepos/gitwebsite/howsthewater/';
-        addpath([upath 'Documents/myrepos/tracingwaves/'])
-    else % OLD UCSD computer
-        ljpath = 'Documents/SIO/misc_projects/';
-        wpath = 'Documents/gitwebsite/howsthewater/';
-        addpath([upath 'Documents/SIO/misc_projects/john/code/tracingwaves/'])
-    end
-end
-
-
+[upath ljpath wpath trpath] = checksystem()
+addpath([upath trpath ])
 
 %% SORT URLS
 
@@ -886,9 +868,10 @@ if (dp0>180 & dp0<0); rayopt = 0; end
 % scatter(x, y(ith), 30, diag(z(:,ith)), 'filled', 'MarkerEdgeColor', 'k')
 % [~,im] = max(diag(z(:,ith)));
 % plot(x(im), y(ith(im)), 'wo', 'LineWidth',2);
-
-
 %%
+
+
+%% run ray tracing and save
 if rayopt
     
     load([upath ljpath 'lajolla_grids.mat']);               %load('/Users/alliho/Documents/SIO/misc_projects/lajolla_grids.mat');
@@ -956,6 +939,15 @@ if rayopt
     ha = tight_subplot(1, 1, [0.05 0.05], [0.09 0.01], [0.12 0.12]);
     % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
     % -------------------------------------------------------------------------
+    ha(2) = axes; ha(2).Position = ha(1).Position; 
+    ha(2).Position(3) = ha(2).Position(3)./4;
+    ha(2).Position(4) = ha(2).Position(4)./5.5;
+
+
+    ha(2).Position([1 2]) = ha(1).Position([1 2]) + [ha(1).Position([3 4]) -  ha(2).Position([3 4])].*[1 0] +  ha(2).Position([3 4]).*0.14.*[-1 1]
+    % ha(2).Position([1 2]) = -  ha(2).Position([3 4]) + ha(1).Position([3 4]).*0.1;
+   
+    
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     thisha = ha(1); axes(thisha); hold on; 
 
@@ -979,11 +971,13 @@ if rayopt
     plZ = plZ; %plZ(plZ<=-1) = 0;
     A = arrayfun(@squeeze, {plX,plY,plZ}); [plX,plY,plZ] = A{:};
     pcolor(plX,plY,plZ); shading flat; 
+    
     c = fixedcolorbar(gca); ylabel(c, 'z [m]'); caxis([-10 350])
     cmap = [242,86,59,255; 251,166,74,255; 252,197,45,255; 255,242,46,255; 147,187,87,255;...
         86,153,131,255; 64,142,191,255; 67,139,250,255; 45,89,209,255; 27,53,149,255];
     cmap = cmap(:,1:3)./255; cmap = buildcmap(cmap,120); cmap = [0.56 0.22 0.22; cmap];
     colormap(cmap)
+    
     %%% PLOT ROADS
     plot([-117.25427800401353 -117.257465], [32.86620057050582 32.867069],'w-', 'LineWidth',8, 'Color', cmap(1,:) + 0.0)
     plot(lajollaroads.lon, lajollaroads.lat, 'w-', 'Color', cmap(1,:) + 0.2)
@@ -1008,23 +1002,79 @@ if rayopt
     else; currstr = ''; Ustr = ''; end
     
     txtstyles = {'FontName', 'avenir', 'HorizontalAlignment','left', 'VerticalAlignment','bottom'};
+    
+    cdip = cdip_inner;
     [~, ti] = min(abs((cdip.time-tmzone)-now));
-    plot(cdip.lon(ti), cdip.lat(ti), 'wo', 'LineWidth',1, 'Color', 'k', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', 'CDIP201', ...
+    plot(cdip.lon(ti), cdip.lat(ti), 'wo', 'LineWidth',1, 'Color', 'k', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
         'MarkerFaceColor',cmap(1,:) + [0.4 0.6 0.6])
+
+    cdip = cdip_outer;
+    [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon(ti), cdip.lat(ti), 'wo', 'LineWidth',1, 'Color', 'k', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+        'MarkerFaceColor',buoycol.*0.7 + [buoycol - nanmean(buoycol)].*1.4)
+    
     plot([-117.255886 -117.2573], [32.86665 32.8670],'w-', 'LineWidth',3, 'Color', cmap(1,:) + [0.4 0.5 0.5], 'DisplayName', 'Scripps Pier | 9410230')
-    % text(cdip.lon0-0.001, cdip.lat0+0.0005, 'CDIP201', txtstyles{:},...
-    %     'BackgroundColor', [1 1 1 0.9], 'Color', 'k', 'HorizontalAlignment','right', 'FontSize',8)
 
-    [~, ti] = min(abs((cdipouter.time-tmzone)-now));
-    text(max(x0) - range(x0).*0.03, min(y0) + range(y0).*0.016,...
-        {['CDIP100 | ' datestr(cdipouter.time(ti) - tmzone, 'yyyy/mm/dd HH:MM') 'PST']},...
-        txtstyles{:}, 'Color', 'w','HorizontalAlignment','right', 'FontSize',8);
 
-    text(max(x0) - range(x0).*0.147, min(y0) + range(y0).*0.025,...
+    % [~, ti] = min(abs((cdipouter.time-tmzone)-now));
+    % text(max(x0) - range(x0).*0.03, min(y0) + range(y0).*0.016,...
+    %     {['CDIP100 | ' datestr(cdipouter.time(ti) - tmzone, 'yyyy/mm/dd HH:MM') 'PST']},...
+    %     txtstyles{:}, 'Color', 'w','HorizontalAlignment','right', 'FontSize',8);
+    % 
+    text(max(x0) - range(x0).*0.45, min(y0) + range(y0).*0.0005,...
         {['Tp=' num2str(round(tp0)) 's'],['Dp=' num2str(pol2oc(met2oc(rad2deg(th0)))) '^o'],Ustr},...
         txtstyles{:}, 'Color', 'w', 'FontSize',12);
 
+    % textbypos((ha(2).Position([1])) - 0.2, ha(2).Position([2]),...
+    %     {['Tp=' num2str(round(tp0)) 's'],['Dp=' num2str(pol2oc(met2oc(rad2deg(th0)))) '^o'],Ustr},...
+    %     txtstyles{:}, 'Color', 'w', 'FontSize',12, 'HorizontalAlignment','left');
+
+
     cleanLegend(gca, 'northeast', 'FontName', 'avenir', 'Color', [1 1 1 0.5], 'EdgeColor', 'none', 'FontSize',8)
+
+    
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    xlims = get(gca, 'XLim'); ylims = get(gca, 'YLim');
+    setaxes(ha(2), 'XLim', xlims+ [-1 1].*0.1 - 0.08); setaxes(ha(2), 'YLim', ylims+ [-1 1].*0.08 + 0.05);
+    set(ha(2), 'Color', 'w')
+    set(ha(2), 'DataAspectRatio', [1 1 1])
+    setaxes(ha(2), 'YColor', 'w'); setaxes(ha(2), 'XColor', 'w');
+    setaxes(ha(2), 'YTick', 'none'); setaxes(ha(2), 'XTick', '');
+    setaxes(ha(2), 'box', 'on');
+    setaxes(ha(2), 'LineWidth',1)
+    buoycol = cmap(1,:) + [0.4 0.6 0.6];
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    thisha = ha(2); axes(thisha); hold on; 
+    
+    
+    cmap = [0 0.25 0.43; 0.52 0.86 0.98];
+    cmap = buildcmap(cmap,120); cmap = flipud(cmap);
+    colormap(gca, cmap)
+
+
+    load('/Users/alliho/Documents/myrepos/supportingdata/coastline_labeled.mat');
+    load([upath ljpath 'lajolla_bathy_m_etopo2.mat']);
+    pcolor(lj.LON, lj.LAT, -lj.ELEV); shading flat;
+    caxis([-1 1050]);
+    plot_mcoast(mcoast, xlims + [-1 1], ylims+ [-1 1]);
+
+    [xb yb] = drawbox(xlims, ylims);
+    plot(xb,yb,'k-', 'Color', buoycol.*0.4, 'LineWidth',1)
+    
+
+    cdip = cdip_outer;
+    [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon(ti), cdip.lat(ti), 'wo', 'LineWidth',1, 'Color', 'k', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+        'MarkerFaceColor',buoycol.*0.7 + [buoycol - nanmean(buoycol)].*1.4)
+
+    cdip = cdip_inner;
+    [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon(ti), cdip.lat(ti), 'wo', 'LineWidth',1, 'Color', 'k', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+        'MarkerFaceColor',buoycol)
+    
+
+   
+    set(gca, 'Layer', 'top')
 
     savejpg(gcf, 'howstherays', [upath wpath], 'on')
     

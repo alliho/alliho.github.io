@@ -1,6 +1,10 @@
 #Ignore these folders
 /oldsites
 /oldbases
+/lajolla_info/
+# Ignore these files
+checksystem.m
+
 # Ignore all .DS_store
 *.DS_Store
 # Ignore all these file types
