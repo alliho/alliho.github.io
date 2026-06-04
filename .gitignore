@@ -1,7 +1,7 @@
 #Ignore these folders
 /oldsites
 /oldbases
-/lajolla_info/
+/howsthewater/reg_info/
 # Ignore these files
 checksystem.m
 
@@ -11,6 +11,8 @@ checksystem.m
 *.psd
 *.mp4
 *.asv
+*.nc
+*.mat
 *.*.html
 # Ingore random other trash
 index_chatGPT.html
