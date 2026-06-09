@@ -63,6 +63,20 @@ noaa.atmp = cellfun(@(x) str2num(x{2}), raw(2:end));
 cdip = dload_cdipbuoy(233, daterange+[-5 0],1, 'include', {'hs', 'dp', 'tp', 'sst'});
 % cdip = dload_cdipbuoy(201, daterange+[-5 0],1, 'include', {'hs', 'dp', 'tp', 'sf'});
 
+%%% tide
+
+ids = {'alawa', 'maka', 'hono2', 'keehi', 'heeia', 'moku', 'halei', 'waian', 'brpt'};
+for i=1:length(ids)
+    disp([num2str(i) '/' num2str(length(ids)) ': ' ids{i}] )
+    iocs(i) = dload_ioc(ids{i});
+end
+
+% figure(55); clf; hold on; 
+% for i=1:length(iocs);
+%     ioc = iocs(i);
+%     plot(ioc.time, ioc.pres - nanmedian(ioc.pres))
+% end
+
 
 % [hfr.U hfr.V hfr.lat hfr.lon hfr.T] = dload_hfr(cdip.lat0,cdip.lon0-0.02,daterange);
 
@@ -143,15 +157,32 @@ thisha = ha(3); axes(thisha); hold on;
 
 col = [154, 163, 67]./258;
 % yyaxis left; set(gca, 'YColor', col)
+
+% v0 = nanmedian(var(tt));
+
+mvar = cellfun(@(x) nanmedian(x.*3.28084), {iocs.pres}); 
+ii = find(isin(mvar, prctile(mvar, [10 90])));
+ii = intersect(ii, find(isin([iocs.lon], noaa.lon + [-1 1]*0.25) & isin([iocs.lat], noaa.lat + [-1 1]*0.25)));
+for io = ii
+    ioc = iocs(io)
+    t = ioc.time-tmzone; var = abs(ioc.pres.*3.28084); 
+    dt = mode(diff(t)); tt = find([NaN diff(t)] < dt*100); t = t(tt); var = var(tt);
+    tt = find(isin(t, xlims)); t = t(tt); var = var(tt);
+    var = var - min(var) ;
+    plot(t, var, 'g-', 'Color', col + 0.2, 'LineWidth',1)
+end
+
 t = noaa.time-tmzone; var = noaa.waterlevel; var(var==1) = NaN;
 dt = mode(diff(t)); var = movmean(var, round(dsmhr./dt));
+var = var - min(var);
 plot(t, var, 'g-', 'Color', col, 'LineWidth',3)
 plot(t(end), var(end), 'o', 'Color', col*0.7, 'LineWidth',2)
 text(t(end)+0.5/24, var(end), num2str(round(var(end),1)), 'Color', col*0.7, ...
     'HorizontalAlignment','left', 'VerticalAlignment','top')
 autodatetick(gca, 'x', 'dlabstyle', 'mm/dd HH:MM', 'dt', dx);
+
 tt = find(isin(t, xlims));
-ylims = minmax(var(tt)) +[-1 1].*0.33; ylim(ylims)
+ylims = minmax(var(tt)) +[-1 1.2].*0.33; ylim(ylims)
 ylabel('MLLW [ft]')
 
 
@@ -198,10 +229,14 @@ alignyaxes(ha, xlims(1)-tmzone);
 % bns = [floor(xlims(1))-1:1:xlims(2)+1];
 % bns = [floor(xlims(1))-1 + 6/24:0.5:xlims(2)+1];
 dys = unique(floor(cdip.time-tmzone)); dys = unique([dys max(dys):1:max(dys)+2]);
-[sun_rise, sun_set] = sun_up_down(dys, cdip.lat0, cdip.lon0, 0, 0);
+[sun_rise, sun_set] = sun_up_down(dys, cdip.lat0, cdip.lon0, 1, 0);
+% sun_rise = sun_rise + 1/24;
+% sun_set = sun_set + 1/24;
 
-
-dataorigins = {['tidesandcurrents.noaa.gov | ' num2str(noaa.id)],['cdip.ucsd.edu | CDIP' num2str(cdip.id)], ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)], {['cdip.ucsd.edu | CDIP' num2str(cdip.id)], ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)]}};
+dataorigins = { ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)], ...
+                ['cdip.ucsd.edu | CDIP' num2str(cdip.id)],...
+                {['ioc-sealevelmonitoring.org'],['tidesandcurrents.noaa.gov | ' num2str(noaa.id)]},...
+                {['cdip.ucsd.edu | CDIP' num2str(cdip.id)], ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)]}};
 % dataorigins = {['tidesandcurrents.noaa.gov | ' num2str(noaa.id)],['cdip.ucsd.edu | CDIP' num2str(cdip.id)], ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)], ['tidesandcurrents.noaa.gov | ' num2str(noaa.id)]};
 for i=1:length(ha)
     axes(ha(i)); drawLineOpts(gca, now, 'x', 'LineStyle', ':');
@@ -210,18 +245,9 @@ for i=1:length(ha)
     text(xlims(1)+1/24, ylims(1) + diff(ylims)*0.03, dataorigins{i}, ...
         'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'FontName', 'Avenir', ...
         'BackgroundColor',[1 1 1 0.8])
-    % if i==4; cleanLegend(gca, 'northeast', 'Orientation', 'Horizontal', 'FontSize',8); end
-    
-    % for bi=1:2:length(bns)-1
-    % for bi=length(bns)-2:-2:1
-    %     bn = bns(bi:bi+1);
-    %     bn = bn + [-1 1].*0.5/24;
-    %     tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
-    %     uistack(tmp, 'bottom')
-    % end
-
     for bi=1:length(sun_rise)-1
         disp(bi);
+        
         bn = [sun_set(bi) sun_rise(bi+1)] - tmzone;
         tmp = patch([bn bn(2) bn(1)], [ylims(1) ylims(1) ylims(2) ylims(2)], 'k', 'FaceAlpha', 0.04, 'EdgeColor', 'none');
         uistack(tmp, 'bottom')
@@ -245,18 +271,23 @@ ylim([0 20])
 savejpg(gcf, 'howsthewater_oahu', [upath wpath], 'on');
 
 
-%% directional plot [add data]
-daterange = [now-5 now+2];
-cdip_south = dload_cdipbuoy(233, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2', 'lon', 'lat'});
+%% [download] directional plot [add data]
+daterange = [now-5.5 now+2];
+
+
+cdip_south = dload_cdipbuoy(233, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2'});
 cdip_south.id = 233;
 
-daterange = [now-5 now+2];
-cdip_windward = dload_cdipbuoy(98, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2', 'lon', 'lat'});
-cdip_windward.id = 98;
+id = 98;
+cdip_windward = dload_cdipbuoy(id, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2'});
+cdip_windward.id = id;
 
-daterange = [now-5 now+2];
-cdip_north = dload_cdipbuoy(106, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2', 'lon', 'lat'});
-cdip_north.id = 98;
+cdip_north = dload_cdipbuoy(106, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2'});
+cdip_north.id = 106;
+
+cdip_west = dload_cdipbuoy(238, daterange,1, 'include', {'hs', 'dp', 'tp', 'sf','md', 'a1','b1','a2','b2'});
+cdip_west.id = 238;
+
 %% [compute] 2D spectra
 
 cdip = cdip_south;
@@ -298,6 +329,19 @@ sp_data.a2 = cdip.a2(:,i);
 sp_data.b2 = cdip.b2(:,i); 
 [mem_out] = MEM_est(sp_data);
 cdip_north.mem_out = mem_out;
+
+cdip = cdip_west;
+[~, i] = min(abs(cdip.time- (now + tmzone)));
+t0 = cdip.time(i);
+sp_data.freq = cdip.f'; 
+sp_data.band_width = cdip.df'; 
+sp_data.ener_dens = cdip.sf(:,i); 
+sp_data.a1 = cdip.a1(:,i); 
+sp_data.b1 = cdip.b1(:,i); 
+sp_data.a2 = cdip.a2(:,i); 
+sp_data.b2 = cdip.b2(:,i); 
+[mem_out] = MEM_est(sp_data);
+cdip_west.mem_out = mem_out;
 
 %% [off] spectrogram over past three days
 
@@ -690,8 +734,8 @@ text(fxp+0.02, fyp+0.02, {['' num2str(round(cdip.tp(i),1)) 's']}, 'Color', col*0
 savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
 
 
-%% [save] map
-
+%% [off] map
+%{
 % -------------------------------------------------------------------------
     % -------------------------------------------------------------------------
     figure(855); clf;  
@@ -796,7 +840,11 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
 
 
     savejpg(gcf, 'howsthe_map_oahu', [upath wpath], 'on')
-%% add directional!
+
+    %}
+
+
+%% [save] map add directional!
     % -------------------------------------------------------------------------
     % -------------------------------------------------------------------------
     figure(855); clf;  
@@ -841,22 +889,27 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
     bathy = load_any_nc([upath regpath 'hawaii_mhi_mbsyn_bathytopo_50m_v21.nc']);
     xx = find(isin(bathy.lon, xlims)); yy = find(isin(bathy.lat, ylims));
     pcolor(bathy.lon(xx), bathy.lat(yy), bathy.z(xx,yy)'); shading flat;
-    mindepth = 2000; maxelev = 1000;
+    mindepth = 2800; maxelev = 1000;
     
     c = fixedcolorbar(gca, 'Location', 'southoutside', 'color', 'w'); 
     c.Position([3 4]) = c.Position([3 4])./[13 1.5];
-    c.Position([1 2]) = thisha.Position([1 2]) + thisha.Position([3 4]).*[0.05 0.1];
+    c.Position([1 2]) = thisha.Position([1 2]) + thisha.Position([3 4]).*([-0.05 0.05] + [1 0]) +  c.Position([3 4]).*[-1 1];
     ylabel(c, 'z [m]', 'fontname', 'avenir', 'interpreter', 'none')
+    cbarpos = c.Position; 
 
+    
   
 
     N = 700;
-    cmap_sea = buildcmap([0.07 0.25 0.42; 0.27 0.47 0.63; 0.5 0.77 0.87; 0.74 0.86 0.9], N-1);
+    % cmap_sea = buildcmap([0.07 0.25 0.42; 0.27 0.47 0.63; 0.5 0.77 0.87; 0.74 0.86 0.9], N-1);
+    cmap_sea = buildcmap([0.08 0.17 0.26; 0.07 0.25 0.42; 0.16 0.37 0.52; 0.27 0.47 0.63; 0.5 0.77 0.87; 0.74 0.86 0.9], N-1);
     cmap_beach = buildcmap([0.73 0.76 0.45; 0.32 0.47 0.08], floor(N.*0.05));
-    cmap_land = buildcmap([0.32 0.47 0.08; 0.6 0.72 0.43], ceil(N.*0.95));
+    % cmap_land = buildcmap([0.32 0.47 0.08; 0.6 0.72 0.43], ceil(N.*0.95));
+    cmap_land = buildcmap([0.32 0.47 0.08; 0.12 0.35 0.1; 0.07 0.22 0.06; 0.26 0.34 0.31], ceil(N.*0.95));
     cmap_land = [cmap_beach; cmap_land];
     landrat = maxelev./mindepth; landrat = abs(landrat); 
-    cmap = [cmap_sea; (cmap_land(1:landrat*length(cmap_land),:))];
+    cmap = [cmap_sea; subsetcmap(cmap_land,  round(landrat*length(cmap_land)))];
+    % cmap = [cmap_sea; (cmap_land(1:landrat*length(cmap_land),:))];
     colormap(gca, cmap); 
     % mindepth = min(bathy.z(xx,yy), [], [1 2]); 
     
@@ -867,42 +920,129 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
     buoycol =  + [0.6 0.6 0.6]+0.2;
 
     % -------------------------------------------------------------------------
+    % -------------------------------------------------------------------------
     txtstyles = {'FontName', 'avenir', 'HorizontalAlignment','left', 'VerticalAlignment','bottom'};
     
     cdip = cdip_south;
-    [~, ti] = min(abs((cdip.time-tmzone)-now));
-    plot(cdip.lon(ti), cdip.lat(ti), 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+    % [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon0, cdip.lat0, 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
         'MarkerFaceColor',buoycol)
-    text(cdip.lon(ti)-0.008, cdip.lat(ti)-0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
+    text(cdip.lon0-0.008, cdip.lat0-0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
         'HorizontalAlignment', 'right', 'VerticalAlignment','top')
 
     cdip = cdip_windward;
-    [~, ti] = min(abs((cdip.time-tmzone)-now));
-    plot(cdip.lon(ti), cdip.lat(ti), 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+    % [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon0, cdip.lat0, 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
         'MarkerFaceColor',buoycol.*0.6 + [buoycol - nanmean(buoycol)].*1.4)
-    text(cdip.lon(ti)+0.008, cdip.lat(ti)+0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
+    text(cdip.lon0+0.008, cdip.lat0+0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
         'HorizontalAlignment', 'left', 'VerticalAlignment','bottom')
 
     cdip = cdip_north;
-    [~, ti] = min(abs((cdip.time-tmzone)-now));
-    plot(cdip.lon(ti), cdip.lat(ti), 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+    % [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon0, cdip.lat0, 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
         'MarkerFaceColor',buoycol.*0.6 + [buoycol - nanmean(buoycol)].*1.4)
-    text(cdip.lon(ti)+0.008, cdip.lat(ti)+0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
+    text(cdip.lon0+0.008, cdip.lat0+0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
         'HorizontalAlignment', 'left', 'VerticalAlignment','bottom')
 
-    plot(noaa.lon, noaa.lat, 'bo', 'MarkerFaceColor',buoycol + 0.2, 'MarkerEdgeColor','k', 'linewidth',2, 'DisplayName',['NOAA ' num2str(noaa.id)])
-    text(noaa.lon-0.004, noaa.lat-0.01, ['NOAA' num2str(noaa.id)], 'FontSize',8, 'FontName','avenir', 'color', 'k', ...
-        'HorizontalAlignment', 'center', 'VerticalAlignment','top')
-    % plot([-117.255886 -117.2573], [32.86665 32.8670],'w-', 'LineWidth',3, 'Color', cmap(1,:) + [0.4 0.5 0.5], 'DisplayName', 'Scripps Pier | 9410230')
+    cdip = cdip_west;
+    % [~, ti] = min(abs((cdip.time-tmzone)-now));
+    plot(cdip.lon0, cdip.lat0, 'ro', 'LineWidth',2, 'Color', 'r', 'MarkerFaceColor', 'w', 'MarkerSize',8, 'DisplayName', ['CDIP' num2str(cdip.id)], ...
+        'MarkerFaceColor',buoycol)
+    text(cdip.lon0-0.008, cdip.lat0-0.008, ['CDIP' num2str(cdip.id)], 'FontSize',10, 'FontName','avenir', 'color', 'r', ...
+        'HorizontalAlignment', 'right', 'VerticalAlignment','top')
     
+   
+    for io = 1:length(iocs); 
+        ioc = iocs(io); 
+        minN = [(1/24)./mode(diff(ioc.time))];
+        tt = find(isin(ioc.time-tmzone, [now - 3/24 now])); 
+        if length(tt)<minN; slpstr = ''; else
+            mdl = fitlm(ioc.time(tt), ioc.pres(tt));
+            slp = mdl.Coefficients.Estimate(2); slp = round(slp,1); 
+            % figure(23132);clf; plot(ioc.time, ioc.pres); hold on; plot(ioc.time(tt), ioc.pres(tt), 'r.')
+            % % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            % thisha = ha(1); axes(thisha); hold on; 
+            % slpth = atan2d(slp,1);
+            % [slpu, slpv] = pol2cart(deg2rad(slpth), 1); sc = 0.01;
+            % quiver(ioc.lon+0.004, ioc.lat+0.01, sc.*slpu, sc.*slpv, 'k-', 'AutoScale', 'off', 'maxheadsize',1)
+            slpstr = '→'; dx = 0.0002; dy = -0.009; 
+            if slp>0.5; slpstr = '↑'; dx = -0.009; dy = 0; 
+            elseif slp<-0.5; slpstr = '↓'; dx = -0.009; dy = 0; 
+            end
+            text(ioc.lon+dx, ioc.lat+dy, [slpstr], 'FontSize',10, 'FontName','avenir', 'color', [1 1  1]*0.1, ...
+                'HorizontalAlignment', 'center', 'VerticalAlignment','middle');
+            % pause;
+        end
+
+        lab = strsplit(erase(ioc.info, {'Tide gauge ', 'Hbr', ',Oahu'}), ', ');
+        plot(ioc.lon, ioc.lat, 'bo', 'MarkerFaceColor',buoycol + 0.2, 'MarkerEdgeColor',[1 1  1]*0.3, 'linewidth',1, 'DisplayName',['IOC ' ioc.id], 'markersize',5);
+
+        
+        text(ioc.lon+0.002, ioc.lat+0.005, ['IOC ' lab{1}], 'FontSize',8, 'FontName','avenir', 'color', [1 1  1]*0.3, ...
+            'HorizontalAlignment', 'left', 'VerticalAlignment','bottom')
+    end
+
+    plot(noaa.lon, noaa.lat, 'bo', 'MarkerFaceColor',buoycol + 0.2, 'MarkerEdgeColor','k', 'linewidth',2, 'DisplayName',['NOAA ' num2str(noaa.id)])
+    text(noaa.lon-0.025, noaa.lat-0.005, ['NOAA' num2str(noaa.id)], 'FontSize',8, 'FontName','avenir', 'color', 'k', ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment','top')
+
     % cleanLegend(gca, 'northeast','NumColumns',3, 'FontName', 'avenir', 'Color', [1 1 1 0.5], 'EdgeColor', 'none', 'FontSize',8)
 
+    % -------------------------------------------------------------------------
+    % DURECTUIBAK OKITS
+    % -------------------------------------------------------------------------
 
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     thisha = axes; hold on; thisha.Position = ha(1).Position; set(gca, 'Color', 'w')
     thisha.Position = thisha.Position.*[1 1 0.25 0.25]; thisha.Position(3:4) = thisha.Position(3).*[1 1.5].*0.9;
-    thisha.Position(1:2) = ha(1).Position(1:2) + ha(1).Position(3:4) - thisha.Position(3:4);
-    thisha.Position(1:2) = thisha.Position(1:2) - thisha.Position(3:4).*0.1.*[1 2.5];
+    thisha.Position(1:2) = thisha.Position(1:2)  + thisha.Position(3:4).*[0.2 0.8];
+    % + thisha.Position(3:4).*[0.5 0];
+    % thisha.Position(1:2) = thisha.Position(1:2) + thisha.Position(3:4).*0.1.*[6 0.7];
+    colormap(gca,jet); caxis([-6.5 -1.5])
+
+    cdip = cdip_west; mem_out = cdip.mem_out; 
+
+    % title({[datestr(t0-tmzone ,'yyyy/mm/dd HH:MM') ' PST'] }, 'color', 'w', 'fontweight', 'normal', 'fontname', 'avenir')
+    th = mem_out.dir; fr = mem_out.freq; Efth = mem_out.ds; 
+    % ff = find(fr>0.4); Efth(ff,:) = NaN;
+    fr = log10(fr); f0 = log10(0.02); fr = fr - f0;;
+    ph = makePolarGrid(...
+        'ALabelScheme', 'wave',...
+        'RTicks',        [0.01:0.21:max(fr) max(fr)*1.015],...  % Radial ticks (inner circles)
+        'RUnits',        '[Hz]',...   % Add units to outer-most radial labels
+        'AMinorTicks', 0, ...
+        'RScale', 'linear', 'GridColor', [1 1 1], 'FontName', 'avenir', 'FontSize',6);         
+    [md,mf] = meshgrid(th,(fr));
+    [px,py] = polgrid2cart(md, mf, ph);
+    z = Efth;z = log10(z);
+    [~,hc]  = contourf(px, py, z, 10);
+    uistack(hc, 'bottom');  % this will put the grid on top of the contours
+    hc.LineStyle = 'none';  % enable/disble contour lines
+
+
+    rstrs = {ph.RLabels.String};
+    rstrs = cellfun(@(x) round(10.^(str2num(x)+f0),2), rstrs, 'Un',0);
+    tmp = strsplit(ph.RLabels(end).String);
+    rstrs{end} = round(10.^(str2num(tmp{1})+f0),2);
+    rstrs = cellfun(@num2str,rstrs, 'Un',0);
+    rstrs{end-1} = [rstrs{end-1} ' [Hz]'];
+    rstrs{1} = '';
+    rstrs{end} = '';
+    for j=1:length(rstrs)
+        set(ph.RLabels(j), 'String', rstrs(j));
+        set(ph.RLabels(j), 'Color', 'w');
+        set(ph.RLabels(j), 'HorizontalAlignment', 'left');
+        set(ph.RLabels(j), 'VerticalAlignment', 'top');
+        set(ph.RLabels(j), 'FontName', 'avenir');
+        set(ph.ALabels(j), 'FontSize', 7);
+    end
+
+    
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    thisha = axes; hold on; thisha.Position = ha(1).Position; set(gca, 'Color', 'w')
+    thisha.Position = thisha.Position.*[1 1 0.25 0.25]; thisha.Position(3:4) = thisha.Position(3).*[1 1.5].*0.9;
+    thisha.Position(1:2) = ha(1).Position(1:2) + ha(1).Position(3:4) + thisha.Position(3:4).*([-1 -1] + [-2 -1]*0.1) ;
+    % thisha.Position(1:2) = thisha.Position(1:2) - thisha.Position(3:4).*0.1.*[1 2.5];
     colormap(gca,jet); caxis([-6.5 -1.5])
 
     cdip = cdip_windward; mem_out = cdip.mem_out; 
@@ -946,8 +1086,8 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     thisha = axes; hold on; thisha.Position = ha(1).Position; set(gca, 'Color', 'w')
     thisha.Position = thisha.Position.*[1 1 0.25 0.25]; thisha.Position(3:4) = thisha.Position(3).*[1 1.5].*0.9;
-    thisha.Position(1:2) = ha(1).Position(1:2) + thisha.Position(3:4).*[0.5 0];
-    thisha.Position(1:2) = thisha.Position(1:2) + thisha.Position(3:4).*0.1.*[6 0.7];
+    thisha.Position(1:2) = ha(1).Position(1:2) + thisha.Position(3:4).*[1.4 0.025];
+    % thisha.Position(1:2) = thisha.Position(1:2) + thisha.Position(3:4).*0.1.*[6 0.7];
     colormap(gca,jet); caxis([-6.5 -1.5])
 
     cdip = cdip_south; mem_out = cdip.mem_out; 
@@ -1031,18 +1171,18 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
         set(ph.ALabels(j), 'FontSize', 7);
     end
 
+    
     c = fixedcolorbar(gca, 'location', 'southoutside', 'Color', 'w'); 
     c.Position([3 4]) = c.Position([3 4])./[2.5 1.5];
-    c.Position([1 2]) = ha(1).Position([1 2]) + ha(1).Position([3 4]).*[0 0] + [1 2.8].*ha(1).Position(3:4).*0.05;
+    c.Position = cbarpos;
+    c.Position(2) = c.Position(2) + c.Position(4)*2;
+    % c.Position([1 2]) = ha(1).Position([1 2]) + ha(1).Position([3 4]).*[0 0] + [1 2.8].*ha(1).Position(3:4).*0.05;
     ylabel(c, '\it log$_{10}$\{S(f)\} [m$^2$Hz]', 'fontname', 'avenir', 'interpreter', 'latex')
-    set(c, 'AxisLocation', 'in')
-    % 
-    % c = fixedcolorbar(gca,'Color', 'w'); 
-    % c.Position([3 4]) = c.Position([3 4])./[1.2 3];
-    % c.Position([1 2]) = ha(1).Position([1 2]) + ha(1).Position([3 4]).*[1 0]  + [-1.5 1].*ha(1).Position(3:4).*0.05;
-    % % c.Position([1 2]) = ha(1).Position([1 2]) + ha(1).Position([3 4]).*[1 0] + [-1 1].*c.Position(3:4) + [-1 1].*ha(1).Position(3:4).*0.1;
-    % ylabel(c, '$\it log_{10}$[S(f)] ', 'fontname', 'avenir', 'interpreter', 'latex')
+    set(c, 'AxisLocation', 'in');
 
+    tmax = max(cellfun(@max, {cdip_north.time, cdip_west.time, cdip_south.time, cdip_windward.time}))-tmzone; 
+    textbypos(ha(1).Position(1) + ha(1).Position(3)*0.007, ha(1).Position(2) + ha(1).Position(4)*0.02, ['Updated ' datestr(tmax, 'yyyy/mm/dd HH:MM') 'HST'] , 'fontname', 'avenir', 'Color', [1 1 1].*0.7)
+    
 
 
     savejpg(gcf, 'howsthewaves_map_oahu', [upath wpath], 'on')
