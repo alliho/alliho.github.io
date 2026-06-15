@@ -4,6 +4,7 @@ tmzone = 7/24;
 tmzone = timezone(-157.858093)./24;
 
 %% fpath
+
 % https://www.pacioos.hawaii.edu/voyager/info/bathymetry.html
 [upath regpath wpath trpath] = checksystem()
 addpath([upath trpath ])
@@ -81,7 +82,7 @@ end
 % [hfr.U hfr.V hfr.lat hfr.lon hfr.T] = dload_hfr(cdip.lat0,cdip.lon0-0.02,daterange);
 
 
-%% [save] PLOT
+%% [save] PLOT time series 
 xlims = [now-5 now+6/24];
 dsmhr = 0.5/25;
 
@@ -450,6 +451,7 @@ ttlstr = ['Updated ' datestr(max([cdip_windward.time cdip_south.time])-tmzone, '
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 fsplit = 0.1;
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 thisha = ha(1); axes(thisha); hold on; 
 title(gca, ttlstr, 'HorizontalAlignment', 'right')
@@ -518,7 +520,7 @@ yticks(1./ytx);
 set(gca, 'YTickLabel', ylb)
 
 yyaxis left; set(gca, 'YColor', 'k')
-cdip = cdip_windward;
+cdip = cdip_windward; 
 x = cdip.time - tmzone; y = cdip.f; Z = cdip.sf; Z = log10(Z); dt = mode(diff(cdip.time));
 pcolor(x,y,Z); shading flat;
 [X Y] = ndgrid(x,y); Z = movmean(Z,(2./24)./dt,2); Z = movmean(Z,3,1); 
