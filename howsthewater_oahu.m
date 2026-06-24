@@ -850,7 +850,7 @@ savejpg(gcf, 'howsthewaves_oahu', [upath wpath], 'on')
     % -------------------------------------------------------------------------
     % -------------------------------------------------------------------------
     figure(855); clf;  
-    setfigsize(gcf, [1339         966])
+    setfigsize(gcf, [1153         833])
     % tight_subplot(Nh, Nw, [gap_h gap_w], [lower upper], [left right]) 
     ha = tight_subplot(1, 1, [0.05 0.05], [0.11 0.01], [1 1].*0.08);
     % [ha] = reorg_tightsubplot(oldha, {[1],[2:3]});
