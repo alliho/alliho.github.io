@@ -1,9 +1,12 @@
 %% assign variables
 tmzone = 8/24;
 tmzone = 7/24;
+tmzone = timezone(-112)./24;
 
 %% fpath
-
+fpath = pwd;
+usnm = extractBetween(fpath, '/Users/', '/Documents'); usnm = usnm{1};
+addpath(['/Users/' usnm '/Documents/myrepos/gitwebsite/'])
 [upath ljpath wpath trpath] = checksystem()
 addpath([upath trpath ])
 
